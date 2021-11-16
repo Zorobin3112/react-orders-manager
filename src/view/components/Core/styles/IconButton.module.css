@@ -1,0 +1,20 @@
+.container {
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.blueBackground {
+    background-color: rgb(25, 118, 210);
+}
+
+.container:active {
+    background-color: rgb(201, 220, 238);
+}
+
+.container img {
+    width: 30px;
+    height: 30px;
+}

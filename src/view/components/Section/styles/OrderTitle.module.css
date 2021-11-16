@@ -1,0 +1,12 @@
+.customerName {
+    background-color: rgba(255, 255, 255, 0);
+    color: #FFF;
+    font-size: 20px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+}
+
+.editing {
+    background-color: orange;
+}

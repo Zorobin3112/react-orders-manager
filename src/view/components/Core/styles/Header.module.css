@@ -1,0 +1,44 @@
+.container {
+    background-color: #FFF;
+    justify-content: space-between;
+    height: 50px;
+    border-radius: 5px;
+}
+
+.positionFixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+.blueBackground {
+    background-color: rgb(25, 118, 210);
+    color: #FFF;
+}
+
+.greenBackground {
+    background-color: rgb(99, 210, 25);
+    color: #333;
+}
+
+.leftSection {
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.centerSection {
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.leftAlign {
+    justify-content: flex-start;
+}
+
+.rightSection {
+    justify-content: flex-start;
+    align-items: center;
+}

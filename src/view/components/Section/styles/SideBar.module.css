@@ -1,0 +1,35 @@
+.container {
+    flex-direction: column;
+    width: 250px;
+    background-color: #FFF;
+    box-shadow: 1px 1px 3px #333;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    z-index: 2;
+}
+
+.row {
+    width: 100%;
+    height: 40px;
+    border-bottom: solid 1px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+}
+
+.row:active {
+    background-color: skyblue;
+}
+
+.select {
+    background-color: rgb(52, 83, 223);
+    color: #fff;
+}
+
+.footer {
+    align-items: center;
+    height: 30px;
+    margin-top: 40px;
+    padding: 10px;
+    background-color: #DDD;
+    color:rgb(52, 83, 223)
+}
