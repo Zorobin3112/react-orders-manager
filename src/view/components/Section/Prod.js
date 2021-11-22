@@ -1,73 +1,74 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
-import {  toggleSelectProd,
-          setProdData } from '../../../redux/orderSlice'
+import clsx from 'clsx'
+import { useMyStore } from '$my-redux/hooks'
+import {  changeItemInfo, 
+          toggleSelectProd, 
+          toggleInStockProd } from '$my-redux/slice'
 import styles from './styles/Prod.module.css'
-import { IconButton, TitleInput } from '../Core'
+import { IconButton, TitleInput } from '$components/core'
 import {  icon_unselect, 
-          icon_select } from '../../assets/icon'
+          icon_select } from '$assets/icon'
 
-export default function Prod({prodData, orderIndex, prodIndex, editing}) {
-    const dispatch = useDispatch()
+export default function Prod({id, forceUneditable = false, page}) {
+    const {orders, packages, prods, dispatch} = useMyStore()
+    const prod = prods[id]
+    const {stats: {selecting, editing}} = page === 'order'?
+      orders[prod.parents.orderID]: packages[prod.parents.packageID]
 
     return (
         <div className={styles.container}>
           <IconButton 
-            src={prodData.stats.select? icon_select: icon_unselect}
-            onClick={() => 
-              dispatch(toggleSelectProd([orderIndex, prodIndex]))}
+            src={selecting.includes(id)? icon_select: icon_unselect}
+            onClick={() => dispatch(toggleSelectProd([page, id]))}
           />
           <div className={styles.prodInfo}>
             <TitleInput
               title='Tên sản phẩm(¥)'
-              value={prodData.displayData.prodName}
+              value={prod.info.name}
               flex={1}
-              editing={editing}
-              onChange={value => 
-                dispatch(setProdData([orderIndex, prodIndex, 'prodName', value]))}
+              editing={!forceUneditable&&editing}
+              onChange={value => dispatch(changeItemInfo(['prod', id, 'name', value]))}
             />
             <div>
               <TitleInput
                 title='Số lượng'
-                value={prodData.displayData.quantity}
-                width={60}
-                editing={editing}
-                onChange={value => 
-                  dispatch(setProdData([orderIndex, prodIndex, 'quantity', value]))}
+                value={prod.info.quantity}
+                width={80}
+                editing={!forceUneditable&&editing}
+                onChange={value => dispatch(changeItemInfo(['prod', id, 'quantity', value]))}
               />
               <TitleInput
                 title='Giá mua(¥)'
-                value={prodData.displayData.buyPrice}
+                value={prod.info.buyPrice}
                 flex={1}
-                editing={editing}
-                onChange={value => 
-                  dispatch(setProdData([orderIndex, prodIndex, 'buyPrice', value]))}
+                editing={!forceUneditable&&editing}
+                onChange={value => dispatch(changeItemInfo(['prod', id, 'buyPrice', value]))}
               />
               <TitleInput
                 title='Giá bán(¥)'
-                value={prodData.displayData.sellPrice}
+                value={prod.info.sellPrice}
                 flex={1}
-                editing={editing}
-                onChange={value => 
-                  dispatch(setProdData([orderIndex, prodIndex, 'sellPrice', value]))}
-              />
-              <TitleInput
-                title='Tiền gửi(¥)'
-                value={prodData.displayData.postPrice}
-                flex={1}
-                editing={editing}
-                onChange={value => 
-                  dispatch(setProdData([orderIndex, prodIndex, 'postPrice', value]))}
+                editing={!forceUneditable&&editing}
+                onChange={value => dispatch(changeItemInfo(['prod', id, 'sellPrice', value]))}
               />
             </div>
-            <TitleInput
-              title='Mã hàng'
-              value={prodData.displayData.postCode}
-              flex={1}
-              editing={editing}
-              onChange={value => 
-                dispatch(setProdData([orderIndex, prodIndex, 'postCode', value]))}
-            />
+            <div>
+              <TitleInput
+                title='Mã hàng'
+                value={prod.info.code}
+                flex={1}
+                editing={!forceUneditable&&editing}
+                onChange={value => dispatch(changeItemInfo(['prod', id, 'code', value]))}
+              />
+              <button 
+                className={clsx(styles.statButton, {
+                  [styles.inStock]: prod.stats.inStock
+                })}
+                onClick={e => dispatch(toggleInStockProd(id))}
+              >
+                {prod.stats.inStock? 'Đã tới kho': 'Đang mua'}
+              </button>
+            </div>
           </div>
         </div>
   )

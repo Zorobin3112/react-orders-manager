@@ -10,3 +10,21 @@
     flex: 1;
     flex-direction: column;
 }
+
+.statButton {
+    align-self: flex-end;
+    width: 115px;
+    height: 35px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 5px;
+    background-color: rgba(25, 118, 210, 0.5);
+    color: #333;
+    font-size: 18px;
+}
+
+.inStock {
+    background-color: green;
+    font-weight: 550;
+    color: honeydew;
+}

@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import orderReducer from './orderSlice'
+import orderReducer from './slice'
 
 export default configureStore({
     reducer: {

@@ -8,9 +8,9 @@ console.log(mode);
 
 const pathList = {
     "-icon": './src/view/assets/icon',
-    "-core": './src/view/components/Core',
-    "-form": './src/view/components/Form',
-    "-section": './src/view/components/Section',
+    "-core": './src/view/components/core',
+    "-page": './src/view/components/page',
+    "-section": './src/view/components/section',
 }
 
 const headerList = {
