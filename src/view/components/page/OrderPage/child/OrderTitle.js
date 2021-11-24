@@ -20,11 +20,11 @@ import { Header } from '$components/section'
 export default function OrderTitle({id}) { 
   const { orders, dispatch } = useMyStore()
   const {
-    stats: {selecting, expanding, editing, completed}, 
+    stats: {selecting, expanding, editing, completed, reported}, 
     info: {customerName}, 
     prodIDs 
   } = orders[id]
-  
+
   return (
     <Header
       leftContent={
@@ -32,7 +32,7 @@ export default function OrderTitle({id}) {
           src={selecting.length === 0? icon_unselect: (
             selecting.length === prodIDs.length? icon_selectAll: icon_select
           )}
-          onClick={() => dispatch(toggleSelectItem(['order', id]))}
+          onClick={() => dispatch(toggleSelectItem(['/order', id]))}
         />
       }
       centerContent={
@@ -42,24 +42,32 @@ export default function OrderTitle({id}) {
           })}
           value={customerName}
           disabled={!editing}
-          onChange={e => dispatch(changeItemInfo(['order', id, 'customerName', e.target.value]))}
+          onChange={e => dispatch(changeItemInfo(['/order', id, 'customerName', e.target.value]))}
         />
       }
       rightContent={<>
-        <IconButton
-          src={icon_mail}
-          onClick={() => dispatch(toggleCompletedItem(['order', id]))}
-        />
-        <IconButton
-          src={icon_prodAdd}
-          onClick={() => dispatch(addProd(id))}
-        />
+        {!reported&&
+          <>
+            {!completed&&
+              <IconButton
+                src={icon_prodAdd}
+                onClick={() => dispatch(addProd(id))}
+              />
+            }
+            <IconButton
+              src={icon_mail}
+              onClick={() => dispatch(toggleCompletedItem(['/order', id]))}
+            />
+          </>
+        }
         <IconButton
           src={expanding? icon_collapse: icon_expand}
-          onClick={() => dispatch(toggleExpandingItem(['order', id]))}
+          onClick={() => dispatch(toggleExpandingItem(['/order', id]))}
         />
       </>}
-      backgroundColor={completed?'green': 'blue'}
+      blueBackground
+      completed={completed}
+      reported={reported}
       titleLeftAlign
     />
   )

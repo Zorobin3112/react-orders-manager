@@ -4,11 +4,13 @@ import {    createInitData,
             createInitPackage,
             createInitProd } from "./template.js"
 import copy from 'copy-to-clipboard'
+import { getTotalPriceOrder, getDateOfNow } from '$my-redux/utils'
 
 export const orderSlice = createSlice({
     name: 'store',
     initialState: createInitData(),
     reducers: {
+        loadData: (state, action) => action.payload,
         //order form
         addOrder: ({database, pageStats}) => {
             const [orderID, newOrder] = createInitOrder()
@@ -20,8 +22,8 @@ export const orderSlice = createSlice({
             database.orders[orderID] = newOrder
             database.prods[prodID] = newProd
 
-            pageStats.orderPage.expandingIDs.push(orderID)
-            pageStats.orderPage.editingIDs.push(orderID)
+            pageStats['/order'].expandingIDs.push(orderID)
+            pageStats['/order'].editingIDs.push(orderID)
         },
         addProd: ({database, pageStats}, action) => {
             const orderID = action.payload
@@ -34,11 +36,11 @@ export const orderSlice = createSlice({
 
             if(!order.stats.editing) {
                 order.stats.editing = true
-                pageStats.orderPage.editingIDs.push(orderID)
+                pageStats['/order'].editingIDs.push(orderID)
             }
             if(!order.stats.expanding) {
                 order.stats.expanding = true
-                pageStats.orderPage.expandingIDs.push(orderID)
+                pageStats['/order'].expandingIDs.push(orderID)
             }
         },
         
@@ -48,8 +50,8 @@ export const orderSlice = createSlice({
             
             database.packages[packageID] = newPackage
 
-            pageStats.packagePage.expandingIDs.push(packageID)
-            pageStats.packagePage.editingIDs.push(packageID)
+            pageStats['/package'].expandingIDs.push(packageID)
+            pageStats['/package'].editingIDs.push(packageID)
         },
         pasteProdToPackage: ({database, pageStats}, action) => {
             const packageID = action.payload
@@ -64,12 +66,12 @@ export const orderSlice = createSlice({
                 database.prods[prodID].parents.packageID = packageID
             })
 
-            pageStats.packagePage.selectingIDs = 
-                pageStats.packagePage.selectingIDs.filter(ID => ID !== packageID)
+            pageStats['/package'].selectingIDs = 
+                pageStats['/package'].selectingIDs.filter(ID => ID !== packageID)
         },
         copyProdCode: ({database, pageStats}) => {
-            if(pageStats.packagePage.selectingIDs.length !== 0) {
-                const data = (pageStats.packagePage.selectingIDs.reduce((result, packageID) => {
+            if(pageStats['/package'].selectingIDs.length !== 0) {
+                const data = (pageStats['/package'].selectingIDs.reduce((result, packageID) => {
                     const pack = database.packages[packageID]
                     const selectStat = pack.stats.selecting
                     pack.stats.selecting = []
@@ -77,76 +79,81 @@ export const orderSlice = createSlice({
                         return acc + database.prods[prodID].info.code + '\n'
                     }, '')
                 }, ''))
-                console.log(data);
-                pageStats.packagePage.selectingIDs = []
+                pageStats['/package'].selectingIDs = []
                 copy(data)
             }
         },
         //Order and package 
         changeItemInfo: ({database}, action) => {
-            const [type, itemID, infoKey, value] = action.payload
-            database[`${type}s`][itemID].info[infoKey] = value
+            const [path, itemID, infoKey, value] = action.payload
+            const items = path === '/order'? database.orders: database.packages
+            items[itemID].info[infoKey] = value
         },
 
         toggleSelectItem: ({database, pageStats}, action) => {
-            const [type, itemID] = action.payload
-            const item = database[`${type}s`][itemID]
-            const statsOfPage = pageStats[`${type}Page`]
+            const [path, itemID] = action.payload
+            const items = path === '/order'? database.orders: database.packages
+            const statsOfPage = pageStats[path]
 
-            if(item.stats.selecting.length !== 0) {
-                item.stats.selecting = []
+            if(items[itemID].stats.selecting.length !== 0) {
+                items[itemID].stats.selecting = []
                 statsOfPage.selectingIDs = 
                     statsOfPage.selectingIDs.filter(ID => ID !== itemID)
             }
             else {
-                item.stats.selecting = item.prodIDs
+                items[itemID].stats.selecting = items[itemID].prodIDs
                     statsOfPage.selectingIDs.push(itemID)
             }
         },
         toggleCompletedItem: ({database}, action) => {
-            const [type, itemID] = action.payload
-            const item = database[`${type}s`][itemID]
+            const [path, itemID] = action.payload
+            const items = path === '/order'? database.orders: database.packages
 
-            item.stats.completed = !item.stats.completed
+            items[itemID].stats.completed = !items[itemID].stats.completed
         },
         toggleExpandingItem: ({database, pageStats}, action) => {
-            const [type, itemID] = action.payload
-            const item = database[`${type}s`][itemID]
-            const statsOfPage = pageStats[`${type}Page`]
+            const [path, itemID] = action.payload
+            const items = path === '/order'? database.orders: database.packages
+            const statsOfPage = pageStats[path]
 
-            if(!item.stats.expanding) {
-                item.stats.expanding = true
+            if(!items[itemID].stats.expanding) {
+                items[itemID].stats.expanding = true
                 statsOfPage.expandingIDs.push(itemID)
             }
             else {
-                item.stats.expanding = false
+                items[itemID].stats.expanding = false
                 statsOfPage.expandingIDs =
                     statsOfPage.expandingIDs.filter(ID => ID !== itemID)
             }
         },
 
         //Prod
+        changeProdInfo: ({database}, action) => {
+            const [prodID, infoKey, value] = action.payload
+            database.prods[prodID].info[infoKey] = value
+        },
         toggleSelectProd: ({database, pageStats}, action) => {
-            const [type, prodID] = action.payload
+            const [path, prodID] = action.payload
             const prod = database.prods[prodID]
-            const itemID = prod.parents[`${type}ID`]
-            const item = database[`${type}s`][itemID]
+            const itemID = path === '/order'? prod.parents.orderID: prod.parents.packageID
+            const items = path === '/order'? database.orders: database.packages
+            const statsOfPage = pageStats[path]
             
-            if(item.stats.selecting.length === 0) {
-                item.stats.selecting.push(prodID)
-                pageStats[`${type}Page`].selectingIDs.push(itemID)
+            if(items[itemID].stats.selecting.length === 0) {
+                items[itemID].stats.selecting.push(prodID)
+                statsOfPage.selectingIDs.push(itemID)
             }
-            else if(item.stats.selecting.includes(prodID)) {
-                item.stats.selecting =
-                    item.stats.selecting.filter(ID => ID !== prodID)
+            else if(items[itemID].stats.selecting.includes(prodID)) {
+                items[itemID].stats.selecting =
+                    items[itemID].stats.selecting.filter(ID => ID !== prodID)
             }
             else {
-                item.stats.selecting.push(prodID)
+                items[itemID].stats.selecting.push(prodID)
             }
 
-            if(item.stats.selecting.length === 0) 
-                pageStats[`${type}Page`].selectingIDs = 
-                    pageStats[`${type}Page`].selectingIDs.filter(ID => ID !== itemID)
+            if(items[itemID].stats.selecting.length === 0) 
+                statsOfPage.selectingIDs = 
+                    statsOfPage.selectingIDs.filter(ID => ID !== itemID)
         },
         toggleInStockProd: ({database}, action) => {
             const prodID = action.payload
@@ -157,10 +164,10 @@ export const orderSlice = createSlice({
 
         //Footer
         toggleSelectAllItem: ({database, pageStats}, action) => {
-            const pageName = action.payload
-            const data = pageName === 'orderPage'? 
+            const pathname = action.payload
+            const data = pathname === '/order'? 
                 database.orders: database.packages
-            const stats = pageStats[pageName]
+            const stats = pageStats[pathname]
 
             if(stats.selectingIDs.length === 0) {
                 Object.values(data).forEach(item => {
@@ -176,10 +183,10 @@ export const orderSlice = createSlice({
             }
         },
         toggleExpandAllItem: ({database, pageStats}, action) => {
-            const pageName = action.payload
-            const data = pageName === 'orderPage'? 
+            const pathname = action.payload
+            const data = pathname === '/order'? 
                 database.orders: database.packages
-            const stats = pageStats[pageName]
+            const stats = pageStats[pathname]
 
             if(stats.expandingIDs.length === 0) {
                 Object.values(data).forEach(item => {
@@ -195,10 +202,10 @@ export const orderSlice = createSlice({
             }
         },
         toggleEditingMode: ({database, pageStats}, action) => {
-            const pageName = action.payload
-            const data = pageName === 'orderPage'? 
+            const pathname = action.payload
+            const data = pathname === '/order'? 
                 database.orders: database.packages
-            const stats = pageStats[pageName]
+            const stats = pageStats[pathname]
 
             if(stats.editingIDs.length === 0) {
                 stats.selectingIDs.forEach(ID => {
@@ -218,7 +225,7 @@ export const orderSlice = createSlice({
         deleteHandleForPackage: ({database, pageStats}, action) => {
             const packages = database.packages
             const prods = database.prods
-            const packagePageStats = pageStats.packagePage
+            const packagePageStats = pageStats['/package']
 
             packagePageStats.selectingIDs.forEach(packageID => {
                 packages[packageID].prodIDs = 
@@ -235,17 +242,19 @@ export const orderSlice = createSlice({
             })
             packagePageStats.selectingIDs = []
         },
-        deleteHandleForOrder: ({database, pageStats}, action) => {
+        deleteHandleForOrder: ({database, pageStats}) => {
             const {orders, packages, prods} = database
-            const orderPageStats = pageStats.orderPage
+            const orderPageStats = pageStats['/order']
 
             orderPageStats.selectingIDs.forEach(orderID => {
                 const order = orders[orderID]
                 order.stats.selecting.forEach(prodID => {
                     const pack = packages[prods[prodID].parents.packageID]
-                    pack.prodIDs = pack.prodIDs.filter(ID => ID !== prodID)
-                    if(pack.prodIDs.length === 0) 
-                        delete packages[prods[prodID].parents.packageID]
+                    if(pack){
+                        pack.prodIDs = pack.prodIDs.filter(ID => ID !== prodID)
+                        if(pack.prodIDs.length === 0) 
+                            delete packages[prods[prodID].parents.packageID]
+                    }
 
                     order.prodIDs = order.prodIDs.filter(ID => ID !== prodID)
                     
@@ -261,21 +270,103 @@ export const orderSlice = createSlice({
         },
         copySelectingProd: ({database, pageStats}) => {
             const selectingProds = 
-                pageStats.orderPage.selectingIDs.reduce((acc, orderID) => {
+                pageStats['/order'].selectingIDs.reduce((acc, orderID) => {
                     const newAcc = [...acc, ...database.orders[orderID].stats.selecting]
                     database.orders[orderID].stats.selecting = []
                     return newAcc
                 }, [])
-            pageStats.orderPage.selectingIDs = []
+            pageStats['/order'].selectingIDs = []
             pageStats.prodClipboard = selectingProds.filter(prodID => 
                 database.prods[prodID].parents.packageID === ''
             )
-            console.log('clip: ', pageStats.prodClipboard)
+        },
+
+        updateReport: (state) => {
+            const {database, report} = state
+            const orderKeyArray = Object.keys(database.orders)
+            const packageKeyArray = Object.keys(database.packages)
+
+            let newReport = packageKeyArray.reduce((total, packageID) => {
+                const reportCond = database.packages[packageID].stats.completed&&
+                                    !database.packages[packageID].stats.reported
+                if(reportCond) {
+                    total.packageTotal++
+                    total.postTotalPrice = total.postTotalPrice + Number(database.packages[packageID].info.price)
+                    database.packages[packageID].stats.reported = true
+                }
+                return total
+            }, report)
+
+            newReport = orderKeyArray.reduce((total, orderID) => {
+                const reportCond = database.orders[orderID].stats.completed&&
+                                    !database.orders[orderID].stats.reported
+                if(reportCond) {
+                    const addTotal = getTotalPriceOrder(database.orders[orderID], database.prods)
+                    total.orderTotal++
+                    total.buyTotalPrice = total.buyTotalPrice + addTotal.buyTotalPrice
+                    total.sellTotalPrice = total.sellTotalPrice + addTotal.sellTotalPrice
+
+                    database.orders[orderID].stats.reported = true
+                }
+                return total
+            }, newReport)
+            
+            state.report = newReport
+        },
+        deleteReportedItem: ({database: {orders, packages, prods}, pageStats}) => {
+            Object.keys(orders).forEach(orderID => {
+                if(orders[orderID].stats.reported) {
+                    orders[orderID].prodIDs.forEach(prodID => {
+                        delete prods[prodID]
+                    })
+                    pageStats['/order'].selectingIDs = 
+                        pageStats['/order'].selectingIDs.filter(ID => ID !== orderID)
+                    pageStats['/order'].editingIDs = 
+                        pageStats['/order'].editingIDs.filter(ID => ID !== orderID)
+                    pageStats['/order'].expandingIDs = 
+                        pageStats['/order'].expandingIDs.filter(ID => ID !== orderID)
+                    delete orders[orderID]
+                }
+            })
+
+            Object.keys(packages).forEach(packageID => {
+                if(packages[packageID].stats.reported) {
+                    pageStats['/package'].selectingIDs = 
+                        pageStats['/package'].selectingIDs.filter(ID => ID !== packageID)
+                    
+                    pageStats['/package'].editingIDs = 
+                        pageStats['/package'].editingIDs.filter(ID => ID !== packageID)
+                    
+                    pageStats['/package'].expandingIDs = 
+                        pageStats['/package'].expandingIDs.filter(ID => ID !== packageID)
+                    
+                    delete packages[packageID]
+                }
+            })
+        },
+        resetReport: ({report}) => {
+            report.resetDate = getDateOfNow()
+            report.orderTotal = 0
+            report.buyTotalPrice = 0
+            report.sellTotalPrice = 0
+            report.packageTotal = 0
+            report.postTotalPrice = 0
+        },
+
+        resetSelectingStats: ({database, pageStats}, action) => {
+            const path = action.payload
+            const itemPageStats = pageStats[path]
+
+            itemPageStats.selectingIDs.forEach(orderID => {
+                database.orders[orderID].stats.selecting = []
+            })
+            itemPageStats.selectingIDs = []
         }
     }
 })
 
 export const {  
+    loadData,
     addOrder,
     addProd,
     addPackage,
@@ -285,6 +376,7 @@ export const {
     toggleSelectItem,
     toggleCompletedItem,
     toggleExpandingItem,
+    changeProdInfo,
     toggleSelectProd,
     toggleInStockProd,
     toggleSelectAllItem,
@@ -292,7 +384,11 @@ export const {
     toggleEditingMode,
     copySelectingProd,
     deleteHandleForPackage,
-    deleteHandleForOrder
+    deleteHandleForOrder,
+    updateReport,
+    deleteReportedItem,
+    resetReport,
+    resetSelectingStats
 
 } = orderSlice.actions
 

@@ -20,11 +20,20 @@
     border-radius: 5px;
     background-color: rgba(25, 118, 210, 0.5);
     color: #333;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .inStock {
     background-color: green;
     font-weight: 550;
     color: honeydew;
+}
+
+.prodStatus {
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: orange;
 }

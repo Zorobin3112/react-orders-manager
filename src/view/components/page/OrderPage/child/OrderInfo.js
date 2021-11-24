@@ -25,7 +25,7 @@ export default function OrderInfo({id}) {
           value={info.note}
           flex={1}
           editing={stats.editing}
-          onChange={value => dispatch(changeItemInfo(['order', id, 'note', value]))}
+          onChange={value => dispatch(changeItemInfo(['/order', id, 'note', value]))}
         />
       </div>
       <TitleInput

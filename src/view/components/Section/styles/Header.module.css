@@ -23,6 +23,11 @@
     color: #333;
 }
 
+.yellowBackground {
+    background-color: orange;
+    color: #333;
+}
+
 .leftSection {
     justify-content: flex-start;
     align-items: center;

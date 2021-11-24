@@ -10,8 +10,7 @@ import { Prod } from '$components/section'
 export default function PackageItem({id}) {
   const {packages, prodClipboard, dispatch} = useMyStore()
   const pack = packages[id]
-
-  console.log('prodClipboard: ', prodClipboard);
+  
   return (
     <li className={styles.container}>
       <PackageTitle id={id}/>
@@ -30,7 +29,7 @@ export default function PackageItem({id}) {
             key={prodID}
             id={prodID}
             forceUneditable
-            page={'package'}
+            path='/package'
           />
         )
       }

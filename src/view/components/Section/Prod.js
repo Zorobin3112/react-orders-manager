@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 import { useMyStore } from '$my-redux/hooks'
-import {  changeItemInfo, 
+import {  changeProdInfo, 
           toggleSelectProd, 
           toggleInStockProd } from '$my-redux/slice'
 import styles from './styles/Prod.module.css'
@@ -9,17 +9,17 @@ import { IconButton, TitleInput } from '$components/core'
 import {  icon_unselect, 
           icon_select } from '$assets/icon'
 
-export default function Prod({id, forceUneditable = false, page}) {
+export default function Prod({id, forceUneditable = false, path, packageStatus}) {
     const {orders, packages, prods, dispatch} = useMyStore()
     const prod = prods[id]
-    const {stats: {selecting, editing}} = page === 'order'?
+    const {stats: {selecting, editing}} = path === '/order'?
       orders[prod.parents.orderID]: packages[prod.parents.packageID]
 
     return (
         <div className={styles.container}>
           <IconButton 
             src={selecting.includes(id)? icon_select: icon_unselect}
-            onClick={() => dispatch(toggleSelectProd([page, id]))}
+            onClick={() => dispatch(toggleSelectProd([path, id]))}
           />
           <div className={styles.prodInfo}>
             <TitleInput
@@ -27,7 +27,7 @@ export default function Prod({id, forceUneditable = false, page}) {
               value={prod.info.name}
               flex={1}
               editing={!forceUneditable&&editing}
-              onChange={value => dispatch(changeItemInfo(['prod', id, 'name', value]))}
+              onChange={value => dispatch(changeProdInfo([id, 'name', value]))}
             />
             <div>
               <TitleInput
@@ -35,21 +35,21 @@ export default function Prod({id, forceUneditable = false, page}) {
                 value={prod.info.quantity}
                 width={80}
                 editing={!forceUneditable&&editing}
-                onChange={value => dispatch(changeItemInfo(['prod', id, 'quantity', value]))}
+                onChange={value => dispatch(changeProdInfo([id, 'quantity', Number(value)]))}
               />
               <TitleInput
                 title='Giá mua(¥)'
                 value={prod.info.buyPrice}
                 flex={1}
                 editing={!forceUneditable&&editing}
-                onChange={value => dispatch(changeItemInfo(['prod', id, 'buyPrice', value]))}
+                onChange={value => dispatch(changeProdInfo([id, 'buyPrice', Number(value)]))}
               />
               <TitleInput
                 title='Giá bán(¥)'
                 value={prod.info.sellPrice}
                 flex={1}
                 editing={!forceUneditable&&editing}
-                onChange={value => dispatch(changeItemInfo(['prod', id, 'sellPrice', value]))}
+                onChange={value => dispatch(changeProdInfo([id, 'sellPrice', Number(value)]))}
               />
             </div>
             <div>
@@ -58,7 +58,7 @@ export default function Prod({id, forceUneditable = false, page}) {
                 value={prod.info.code}
                 flex={1}
                 editing={!forceUneditable&&editing}
-                onChange={value => dispatch(changeItemInfo(['prod', id, 'code', value]))}
+                onChange={value => dispatch(changeProdInfo([id, 'code', value]))}
               />
               <button 
                 className={clsx(styles.statButton, {
@@ -69,6 +69,11 @@ export default function Prod({id, forceUneditable = false, page}) {
                 {prod.stats.inStock? 'Đã tới kho': 'Đang mua'}
               </button>
             </div>
+            {packageStatus&&
+              <div className={styles.prodStatus}>
+                {`Sản phẩm đã được thêm vào chuyến hàng ${prods[id].parents.packageID}`}
+              </div>
+            }
           </div>
         </div>
   )

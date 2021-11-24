@@ -6,7 +6,7 @@ import OrderTitle from './OrderTitle'
 import OrderInfo from './OrderInfo'
 import { Prod } from '$components/section'
 
-export default function Order({id}) {
+export default function OrderItem({id}) {
   const {orders, prods} = useMyStore()
   const order = orders[id]
 
@@ -16,18 +16,12 @@ export default function Order({id}) {
       <OrderInfo id={id}/>
       {order.stats.expanding&&
         order.prodIDs.map(prodID => 
-          <>
-            <Prod 
-              key={prodID}
-              id={prodID}
-              page={'order'}
-            />
-            {prods[prodID].parents.packageID !== ''&&
-              <div className={styles.prodStatus}>
-                {`Sản phẩm đã được thêm vào chuyến hàng ${prods[prodID].parents.packageID}`}
-              </div>
-            }
-          </>
+          <Prod 
+            key={prodID}
+            id={prodID}
+            path='/order'
+            packageStatus={prods[prodID].parents.packageID !== ''}
+          />
         )
       }
     </li>

@@ -1,3 +1,5 @@
-export {default as Header} from './Header.js'
 export {default as Footer} from './Footer.js'
+export {default as Header} from './Header.js'
 export {default as Prod} from './Prod.js'
+export {default as SideBar} from './SideBar.js'
+export {default as SubReport} from './SubReport.js'

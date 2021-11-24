@@ -3,15 +3,18 @@ import clsx from 'clsx'
 import styles from './styles/Header.module.css'
 
 export default function Header({  leftContent, centerContent, rightContent,
-                                  backgroundColor = '', 
+                                  completed, 
+                                  reported,
+                                  blueBackground,
                                   titleLeftAlign = false,
                                   positionFixed = false}) {
     
     return (
         <div 
           className={clsx(styles.container, {
-            [styles.blueBackground]: backgroundColor === 'blue',
-            [styles.greenBackground]: backgroundColor === 'green',
+            [styles.blueBackground]: blueBackground,
+            [styles.yellowBackground]: reported,
+            [styles.greenBackground]: reported||completed,
             [styles.positionFixed]: positionFixed
           })}
         >

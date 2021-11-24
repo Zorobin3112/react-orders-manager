@@ -9,16 +9,24 @@ export function createInitData() {
         },
         pageStats: {
             prodClipboard: [],
-            orderPage: {
+            "/order": {
                 selectingIDs: [],
                 expandingIDs: [],
                 editingIDs: []
             },
-            packagePage: {
+            "/package": {
                 selectingIDs: [],
                 expandingIDs: [],
                 editingIDs: []
             }
+        },
+        report: {
+            resetDate: getDateOfNow(),
+            orderTotal: 0,
+            buyTotalPrice: 0,
+            sellTotalPrice: 0,
+            packageTotal: 0,
+            postTotalPrice: 0
         }
     }
 }
@@ -31,6 +39,7 @@ export function createInitOrder() {
             expanding: true,
             editing: true,
             completed: false, 
+            reported: false, 
         },
         info: {
             customerName: 'Khanh',
@@ -52,7 +61,8 @@ export function createInitPackage() {
             selecting: [],
             expanding: true,
             editing: true,
-            completed: false,   
+            completed: false,  
+            reported: false,  
         },
         info: {
             creatingDate: getDateOfNow(),
