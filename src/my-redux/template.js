@@ -42,9 +42,9 @@ export function createInitOrder() {
             reported: false, 
         },
         info: {
-            customerName: 'Khanh',
+            customerName: '',
             total: 0,
-            note: 'order note',
+            note: '',
             creatingDate: getDateOfNow(),
             completeDate: '',
         },
@@ -66,8 +66,8 @@ export function createInitPackage() {
         },
         info: {
             creatingDate: getDateOfNow(),
-            price: 1000,
-            weight: 10,
+            price: 0,
+            weight: 0,
             note: 'pack note'
         },
         prodIDs: []
@@ -87,11 +87,11 @@ export function createInitProd() {
             packageID: ''
         },
         info: {
-            name: 'Quan',
-            quantity: 1,
-            buyPrice: 1000,
-            sellPrice: 1100,
-            code: '123456789'
+            name: '',
+            quantity: 0,
+            buyPrice: 0,
+            sellPrice: 0,
+            code: ''
         }
     }
 

@@ -51,7 +51,11 @@ export default function Footer({path}) {
   ]  
 
   const [subReport, setSubReport] = useState({buyTotalPrice: 0, sellTotalPrice: 0})
-  const subReportShow = subReport.buyTotalPrice !== 0|| subReport.sellTotalPrice !== 0
+  const subReportShow = (subReport.buyTotalPrice !== 0|| subReport.sellTotalPrice !== 0)
+  if(pageStats.selectingIDs.length !== 0) {
+    subReport.buyTotalPrice = 0
+    subReport.sellTotalPrice = 0
+  }
   const subReportHandle = () => {
     if(subReportShow) {
       setSubReport(prev => ({buyTotalPrice: 0, sellTotalPrice: 0}))
@@ -80,7 +84,8 @@ export default function Footer({path}) {
   return (
     <>
       <div className={styles.container}>
-        {path === '/order'&& (subReportShow||orderPageStats.selectingIDs.length !== 0)&&
+        {path === '/order'&& 
+          (subReportShow||orderPageStats.selectingIDs.length !== 0)&&
           <div className={styles.row}>
             {subReportShow&&
               <>

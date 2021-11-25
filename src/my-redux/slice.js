@@ -237,33 +237,49 @@ export const orderSlice = createSlice({
                     }
                     )
                 packages[packageID].stats.selecting = []
-                if(packages[packageID].prodIDs.length === 0) 
+                if(packages[packageID].prodIDs.length === 0) {
+                    packagePageStats.selectingIDs = []
+                    packagePageStats.expandingIDs = 
+                        packagePageStats.expandingIDs.filter(ID => ID !== packageID)
+                    packagePageStats.editingIDs = 
+                        packagePageStats.editingIDs.filter(ID => ID !== packageID)
                     delete packages[packageID]
+                }
             })
             packagePageStats.selectingIDs = []
         },
         deleteHandleForOrder: ({database, pageStats}) => {
             const {orders, packages, prods} = database
             const orderPageStats = pageStats['/order']
+            const packagePageStats = pageStats['/package']
 
             orderPageStats.selectingIDs.forEach(orderID => {
                 const order = orders[orderID]
                 order.stats.selecting.forEach(prodID => {
-                    const pack = packages[prods[prodID].parents.packageID]
+                    const packageID = prods[prodID].parents.packageID
+                    const pack = packages[packageID]
                     if(pack){
                         pack.prodIDs = pack.prodIDs.filter(ID => ID !== prodID)
-                        if(pack.prodIDs.length === 0) 
+                        if(pack.prodIDs.length === 0) {
+                            packagePageStats.selectingIDs = []
+                            packagePageStats.expandingIDs = 
+                                packagePageStats.expandingIDs.filter(ID => ID !== packageID)
+                            packagePageStats.editingIDs = 
+                                packagePageStats.editingIDs.filter(ID => ID !== packageID)
                             delete packages[prods[prodID].parents.packageID]
+                        }
                     }
-
                     order.prodIDs = order.prodIDs.filter(ID => ID !== prodID)
-                    
                     delete prods[prodID]
                 })
-
                 order.stats.selecting = []
-                if(order.prodIDs.length === 0) 
+                if(order.prodIDs.length === 0) {
+                    orderPageStats.expandingIDs = 
+                        orderPageStats.expandingIDs.filter(ID => ID !== orderID)
+                    orderPageStats.editingIDs = 
+                        orderPageStats.editingIDs.filter(ID => ID !== orderID)
                     delete orders[orderID]
+                }
 
             })
             orderPageStats.selectingIDs = []

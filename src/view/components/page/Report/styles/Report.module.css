@@ -13,6 +13,12 @@
 .buttonSection {
     justify-content: space-around;
     align-items: stretch;
+    background-color: #FFF;
+    width: 100%;
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    z-index: 2;
 }
 
 .button {
@@ -39,7 +45,7 @@
 
 .line {
     height: 5px;
-    margin: 10px;
+    margin: 5px 10px;
     background-color: #777;
 }
 

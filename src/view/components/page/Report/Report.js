@@ -5,7 +5,6 @@ import { useMyStore } from '$my-redux/hooks'
 import {  updateReport, 
           resetReport,
           deleteReportedItem } from '$my-redux/slice'
-import { getDateOfNow } from '$my-redux/utils'
 import { TitleInput } from '$components/core'
 
 export default function Report() {
